@@ -1,0 +1,61 @@
+import heapq
+
+def a_star(graph, start, goal, heuristic):
+    # Priority queue
+    open_list = []
+    heapq.heappush(open_list, (0, start))
+
+    # Cost from start to node
+    g_cost = {start: 0}
+
+    # Track path
+    parent = {start: None}
+
+    while open_list:
+        current_cost, current_node = heapq.heappop(open_list)
+
+        # Goal check
+        if current_node == goal:
+            path = []
+            while current_node:
+                path.append(current_node)
+                current_node = parent[current_node]
+            return path[::-1]
+
+        for neighbor, weight in graph[current_node]:
+            new_cost = g_cost[current_node] + weight
+
+            if neighbor not in g_cost or new_cost < g_cost[neighbor]:
+                g_cost[neighbor] = new_cost
+                priority = new_cost + heuristic(neighbor)
+                heapq.heappush(open_list, (priority, neighbor))
+                parent[neighbor] = current_node
+
+    return None
+
+
+# Example graph
+graph = {
+    'A': [('B', 1), ('C', 3)],
+    'B': [('D', 1), ('E', 5)],
+    'C': [('F', 2)],
+    'D': [],
+    'E': [('F', 1)],
+    'F': []
+}
+
+# Heuristic function (estimated distance to goal F)
+def heuristic(node):
+    h = {
+        'A': 5,
+        'B': 3,
+        'C': 4,
+        'D': 6,
+        'E': 1,
+        'F': 0
+    }
+    return h[node]
+
+# Run A*
+path = a_star(graph, 'A', 'F', heuristic)
+print("Shortest Path:", path)
